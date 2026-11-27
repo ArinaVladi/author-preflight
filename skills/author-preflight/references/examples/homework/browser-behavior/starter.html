@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<title>Поиск с управляемыми ответами</title>
+<form id="search">
+  <label>Запрос <input name="query" required></label>
+  <button type="submit">Найти</button>
+</form>
+<p>Ответы приходят только после нажатия одной из этих кнопок:</p>
+<button type="button" data-answer="мак">Ответ для «мак»</button>
+<button type="button" data-answer="маяк">Ответ для «маяк»</button>
+<p>Результат: <output id="result" aria-live="polite"></output></p>
+<script type="module">
+  import { bindSearch } from './starter.mjs';
+  const pending = new Map();
+  function search(query) {
+    return new Promise(resolve => pending.set(query, resolve));
+  }
+  for (const button of document.querySelectorAll('[data-answer]')) {
+    button.addEventListener('click', () => {
+      const query = button.dataset.answer;
+      const resolve = pending.get(query);
+      if (resolve) {
+        pending.delete(query);
+        resolve(query);
+      }
+    });
+  }
+  bindSearch(document.querySelector('#search'), document.querySelector('#result'), search);
+</script>
